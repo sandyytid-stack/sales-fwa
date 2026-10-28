@@ -59,6 +59,9 @@ dialog input,dialog select,dialog textarea{width:100%;border:1px solid var(--bd)
 .aks button{border:0;border-radius:10px;padding:10px 16px;font-size:15px;font-weight:500;background:none;color:var(--pr)}
 .aks .ok{background:var(--pr);color:#fff}
 
+dialog summary{color:var(--pr);font-size:14px;font-weight:500;cursor:pointer;padding:6px 0}
+.mini{border:1px solid var(--bd);background:var(--btn);color:var(--pr);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:500}
+.info{color:var(--s2f);font-size:12px;margin-top:6px;min-height:16px}
 </style>
 </head>
 <body>
@@ -72,10 +75,17 @@ dialog input,dialog select,dialog textarea{width:100%;border:1px solid var(--bd)
 <button class="fab" type="button" id="tambah">+ Tambah</button>
 <dialog id="dlg">
   <h2 id="jdl">Tambah pelanggan</h2>
+  <details id="tmp"><summary>Tempel data untuk isi otomatis</summary>
+    <textarea id="fz" rows="4" placeholder="Tempel data di sini, satu data per baris, misalnya:&#10;Nama: Budi Santoso&#10;No HP: 0812-3456-7890&#10;Email: budi@contoh.com&#10;Alamat: Jl. Cipaganti No. 12&#10;Paket: Air100 Hemat"></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px"><button type="button" class="mini" id="tempelBtn">Tempel dari clipboard</button><button type="button" class="mini" id="isiBtn">Isi otomatis</button></div>
+    <div class="info" id="info"></div>
+  </details>
   <label for="fn">Nama</label><input id="fn" autocomplete="off">
   <label for="ft">No. HP</label><input id="ft" type="tel">
+  <label for="fe">Email</label><input id="fe" type="email" inputmode="email" autocomplete="off">
+  <label for="fi">No. NIK KTP</label><input id="fi" inputmode="numeric" maxlength="16" placeholder="16 digit" autocomplete="off">
   <label for="fa">Alamat</label><input id="fa">
-  <label for="fp">Paket FWA</label><input id="fp">
+  <label for="fp">Paket FWA</label><select id="fp"><option value="">Pilih paket</option><option>Air100 Hemat</option><option>Air100 Keluarga</option><option>Air100 Prima</option></select>
   <label for="fk">Koordinat (lat, long)</label><input id="fk" placeholder="-6.914744, 107.609810" autocomplete="off">
   <label for="fs">Status</label><select id="fs"></select>
   <label for="fg">Sinyal di lokasi</label><select id="fg"><option value="">Belum diketahui</option><option>Kuat</option><option>Sedang</option><option>Lemah</option></select>
@@ -125,8 +135,10 @@ function bukaForm(x) {
   eid = x ? x.id : null;
   $("jdl").textContent = x ? "Ubah pelanggan" : "Tambah pelanggan";
   $("fn").value = x ? x.n : ""; $("ft").value = x ? x.t : ""; $("fa").value = x ? x.a : "";
+  $("fe").value = x ? (x.e || "") : ""; $("fi").value = x ? (x.i || "") : "";
   $("fp").value = x ? x.p : ""; $("fk").value = x ? x.k : ""; $("fs").value = x ? x.st : 0;
   $("fg").value = x ? x.s : ""; $("fd").value = x ? x.f : ""; $("fc").value = x ? x.c : "";
+  $("fz").value = ""; $("info").textContent = ""; $("tmp").open = !x;
   $("err").textContent = ""; $("dlg").showModal();
 }
 
@@ -149,14 +161,77 @@ $("cari").addEventListener("input", function (e) { q = e.target.value.toLowerCas
 $("tambah").addEventListener("click", function () { bukaForm(null); });
 $("batal").addEventListener("click", function () { $("dlg").close(); });
 $("simpan").addEventListener("click", function () {
-  var n = $("fn").value.trim(), t = $("ft").value.trim(), k = $("fk").value.trim();
+  var n = $("fn").value.trim(), t = $("ft").value.trim(), k = $("fk").value.trim(), em = $("fe").value.trim(), ni = $("fi").value.trim();
   if (!n || !t) { $("err").textContent = "Nama dan No. HP wajib diisi."; return; }
   if (k && !/^-?\d{1,3}(\.\d+)?\s*,\s*-?\d{1,3}(\.\d+)?$/.test(k)) { $("err").textContent = "Format koordinat: -6.914744, 107.609810"; return; }
-  var o = { id: eid || Date.now(), n: n, t: t, a: $("fa").value.trim(), p: $("fp").value.trim(), k: k, st: +$("fs").value,
+  if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) { $("err").textContent = "Format email tidak valid."; return; }
+  if (ni && !/^\d{16}$/.test(ni)) { $("err").textContent = "NIK harus 16 digit angka."; return; }
+  var o = { id: eid || Date.now(), n: n, t: t, e: em, i: ni, a: $("fa").value.trim(), p: $("fp").value.trim(), k: k, st: +$("fs").value,
     s: $("fg").value, f: $("fd").value, c: $("fc").value.trim(), fav: false };
   if (eid) { var lama = cari(eid); o.fav = lama.fav; D[D.indexOf(lama)] = o; } else D.push(o);
   D.sort(function (a, b) { return (b.fav - a.fav) || a.n.localeCompare(b.n); });
   simpan(); render(); $("dlg").close();
+});
+$("fi").addEventListener("input", function (e) { e.target.value = e.target.value.replace(/\D/g, ""); });
+var KOOR = /(-?\d{1,3}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)/;
+var KUNCI = { n: ["nama", "nama lengkap", "nama pelanggan", "name"], t: ["hp", "handphone", "telp", "telepon", "tlp", "wa", "whatsapp", "phone", "hp wa", "telp wa", "kontak"],
+  e: ["email", "e mail", "surel"], i: ["nik", "ktp", "nik ktp"], a: ["alamat", "alamat lengkap", "address", "lokasi"], p: ["paket", "produk", "package", "paket fwa"],
+  k: ["koordinat", "titik koordinat", "titik", "lat long", "latlong", "maps", "peta", "map", "koordinat lokasi"], s: ["sinyal", "signal"], st: ["status"],
+  f: ["follow up", "followup", "tanggal follow up", "tgl follow up", "jadwal follow up"], c: ["catatan", "keterangan", "note", "notes", "ket"] };
+function jenis(k) {
+  k = k.toLowerCase().replace(/[.\-_\/]/g, " ").replace(/\s+/g, " ").trim().replace(/^(no|nomor) /, "");
+  for (var j in KUNCI) if (KUNCI[j].indexOf(k) > -1) return j;
+  return null;
+}
+function hp(v) { var d = v.replace(/\D/g, ""); if (d.indexOf("62") === 0) d = "0" + d.slice(2); return d; }
+function tglISO(v) {
+  var m = v.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);
+  if (m) return m[3] + "-" + ("0" + m[2]).slice(-2) + "-" + ("0" + m[1]).slice(-2);
+  m = v.match(/\d{4}-\d{2}-\d{2}/); return m ? m[0] : "";
+}
+function bersih(j, v) {
+  v = v.trim();
+  if (j === "t") return hp(v);
+  if (j === "i") return v.replace(/\D/g, "").slice(0, 16);
+  if (j === "e") { var m = v.match(/[^\s@]+@[^\s@]+\.[^\s@]+/); return m ? m[0] : ""; }
+  if (j === "k") { var c = v.match(KOOR); return c ? c[1] + ", " + c[2] : ""; }
+  if (j === "p") { var p = v.match(/hemat|keluarga|prima/i); return p ? "Air100 " + p[0].charAt(0).toUpperCase() + p[0].slice(1).toLowerCase() : ""; }
+  if (j === "s") { var s = v.match(/kuat|sedang|lemah/i); return s ? s[0].charAt(0).toUpperCase() + s[0].slice(1).toLowerCase() : ""; }
+  if (j === "st") { var l = v.toLowerCase(); return /batal/.test(l) ? 3 : /belum/.test(l) ? 0 : /pasang/.test(l) ? 2 : /survei|survey/.test(l) ? 1 : /prospek/.test(l) ? 0 : ""; }
+  if (j === "f") return tglISO(v);
+  return v;
+}
+function isiOtomatis() {
+  var r = {}, sisa = [], m2;
+  $("fz").value.split(/\r?\n/).forEach(function (b) {
+    var m = b.match(/^\s*(?:[-*•]|\d+[.)])?\s*([^:=]{2,30}?)\s*[:=]\s*(.+)$/), j = m && jenis(m[1]);
+    if (j) {
+      var v = bersih(j, m[2]);
+      if (j === "a" && /^[-\d.,\s]+$/.test(m[2]) && KOOR.test(m[2])) { j = "k"; v = bersih("k", m[2]); }
+      if (v !== "" && r[j] === undefined) r[j] = v;
+    } else if (b.trim()) sisa.push(b.trim());
+  });
+  var s = sisa.join("\n"), alm = /^(jl\.?|jalan|perum|komplek|gg\.?|gang)\b/i;
+  if (r.i === undefined && (m2 = s.match(/\b\d{16}\b/))) { r.i = m2[0]; s = s.replace(m2[0], " "); }
+  if (r.e === undefined && (m2 = s.match(/[^\s@]+@[^\s@]+\.[^\s@]+/))) r.e = m2[0];
+  if (r.t === undefined && (m2 = s.match(/(?:\+?62|0)8\d[\d\s\-]{6,13}\d/))) r.t = hp(m2[0]);
+  if (r.k === undefined && (m2 = s.match(KOOR))) r.k = m2[1] + ", " + m2[2];
+  if (r.p === undefined && (m2 = s.match(/air\s*100\s*(hemat|keluarga|prima)/i))) r.p = bersih("p", m2[1]);
+  if (r.s === undefined && (m2 = s.match(/sinyal\s*[:\-]?\s*(kuat|sedang|lemah)/i))) r.s = bersih("s", m2[1]);
+  if (r.a === undefined) { var la = sisa.filter(function (x) { return alm.test(x); })[0]; if (la) r.a = la; }
+  if (r.n === undefined) { var ln = sisa.filter(function (x) { return x.length < 40 && !/[\d@]/.test(x) && !alm.test(x); })[0]; if (ln) r.n = ln; }
+  var peta = { n: "fn", t: "ft", e: "fe", i: "fi", a: "fa", p: "fp", k: "fk", st: "fs", s: "fg", f: "fd", c: "fc" };
+  var nama = { n: "Nama", t: "No. HP", e: "Email", i: "NIK", a: "Alamat", p: "Paket", k: "Koordinat", s: "Sinyal", st: "Status", f: "Follow-up", c: "Catatan" }, ok = [];
+  for (var j in r) { $(peta[j]).value = r[j]; ok.push(nama[j]); }
+  $("info").textContent = ok.length ? "Terisi: " + ok.join(", ") + ". Periksa lagi sebelum menyimpan." : "Tidak ada data yang dikenali. Tulis satu data per baris, misalnya Nama: Budi.";
+}
+$("isiBtn").addEventListener("click", isiOtomatis);
+$("fz").addEventListener("paste", function () { setTimeout(isiOtomatis, 60); });
+$("tempelBtn").addEventListener("click", function () {
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    navigator.clipboard.readText().then(function (t) { $("fz").value = t; isiOtomatis(); })
+      .catch(function () { $("info").textContent = "Izin clipboard ditolak. Tempel manual di kotak lalu tekan Isi otomatis."; });
+  } else $("info").textContent = "Browser tidak mendukung. Tempel manual di kotak lalu tekan Isi otomatis.";
 });
 $("fs").innerHTML = ST.map(function (s, i) { return '<option value="' + i + '">' + s + "</option>"; }).join("");
 render();
