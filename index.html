@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sales FWA</title>
+<meta name="theme-color" content="#2563EB">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sales FWA">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+
+:root{--bg:#F5F7FB;--card:#fff;--bd:#E3E7EF;--tx:#1B1F2A;--mu:#6B7280;--pr:#2563EB;--pc:#E0E9FF;--btn:#EEF2FF;--chip:#fff;
+--s0b:#E0E9FF;--s0f:#1D4ED8;--s1b:#FEF3C7;--s1f:#B45309;--s2b:#DCFCE7;--s2f:#15803D;--s3b:#FEE2E2;--s3f:#B91C1C;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1117;--card:#171B24;--bd:#2A3040;--tx:#E8EBF2;--mu:#9AA3B5;--pr:#7FA6FF;--pc:#22305A;--btn:#202842;--chip:#171B24;
+--s0b:#22305A;--s0f:#A8C2FF;--s1b:#4A3510;--s1f:#F5C26B;--s2b:#12361F;--s2f:#7DDC9C;--s3b:#4A1B1B;--s3f:#FF9C9C}}
+:root[data-theme="dark"]{--bg:#0E1117;--card:#171B24;--bd:#2A3040;--tx:#E8EBF2;--mu:#9AA3B5;--pr:#7FA6FF;--pc:#22305A;--btn:#202842;--chip:#171B24;
+--s0b:#22305A;--s0f:#A8C2FF;--s1b:#4A3510;--s1f:#F5C26B;--s2b:#12361F;--s2f:#7DDC9C;--s3b:#4A1B1B;--s3f:#FF9C9C}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.app{max-width:420px;margin:0 auto;padding:20px 16px 96px}
+h1{font-size:26px;font-weight:700;margin:0}
+.sub{color:var(--mu);font-size:14px;margin:2px 0 14px}
+.cari{width:100%;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:14px;padding:12px 14px;font-size:15px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0}
+.chip{flex:none;border:1px solid var(--bd);background:var(--chip);color:var(--tx);border-radius:50px;padding:6px 12px;font-size:13px;cursor:pointer}
+.chip.on{background:var(--pc);color:var(--pr);border-color:var(--pr)}
+.kartu{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px;margin-bottom:8px}
+.r1{display:flex;align-items:center;gap:10px}
+.av{width:34px;height:34px;border-radius:50%;background:var(--pc);color:var(--pr);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none}
+.nm{flex:1;min-width:0}
+.nm b{display:block;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nm small{display:block;color:var(--mu);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bd{flex:none;border:0;border-radius:50px;padding:3px 8px;font-size:11px;font-weight:500;cursor:pointer}
+.mn{flex:none;width:32px;height:32px;border:0;background:none;color:var(--mu);font-size:20px;border-radius:50%}
+.if{font-size:12px;margin-top:6px}
+.mu{font-size:12px;color:var(--mu)}
+.bt{display:flex;gap:6px;margin-top:8px}
+.bt button{flex:1;height:30px;border:0;border-radius:8px;background:var(--btn);color:var(--pr);font-size:13px;font-weight:500}
+.fab{position:fixed;right:max(16px,calc(50% - 194px));bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--pr);color:#fff;border:0;border-radius:16px;padding:13px 18px;font-size:15px;font-weight:500}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .fab{color:#0E1117}}
+.kosong{color:var(--mu);font-size:14px;padding:12px 0}
+
+.bd{position:relative;display:inline-block}
+.mn{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.bd select,.mn select{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px}
+.bt a{flex:1;height:30px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--btn);color:var(--pr);font-size:13px;font-weight:500;text-decoration:none}
+dialog{border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:20px;padding:18px;width:min(92vw,400px);max-height:90vh;overflow:auto}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+dialog h2{font-size:18px;margin:0 0 8px}
+dialog label{display:block;font-size:12px;color:var(--mu);margin:8px 0 3px}
+dialog input,dialog select,dialog textarea{width:100%;border:1px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:10px;padding:9px 10px;font-size:16px;font-family:inherit}
+.err{color:#DC2626;font-size:12px;min-height:16px;margin-top:6px}
+.aks{display:flex;justify-content:flex-end;gap:10px;margin-top:10px}
+.aks button{border:0;border-radius:10px;padding:10px 16px;font-size:15px;font-weight:500;background:none;color:var(--pr)}
+.aks .ok{background:var(--pr);color:#fff}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Sales FWA</h1>
+  <p class="sub" id="sub"></p>
+  <input class="cari" id="cari" type="search" placeholder="Cari nama atau alamat" autocomplete="off">
+  <div class="chips" id="chips"></div>
+  <div id="list"></div>
+</div>
+<button class="fab" type="button" id="tambah">+ Tambah</button>
+<dialog id="dlg">
+  <h2 id="jdl">Tambah pelanggan</h2>
+  <label for="fn">Nama</label><input id="fn" autocomplete="off">
+  <label for="ft">No. HP</label><input id="ft" type="tel">
+  <label for="fa">Alamat</label><input id="fa">
+  <label for="fp">Paket FWA</label><input id="fp">
+  <label for="fk">Koordinat (lat, long)</label><input id="fk" placeholder="-6.914744, 107.609810" autocomplete="off">
+  <label for="fs">Status</label><select id="fs"></select>
+  <label for="fg">Sinyal di lokasi</label><select id="fg"><option value="">Belum diketahui</option><option>Kuat</option><option>Sedang</option><option>Lemah</option></select>
+  <label for="fd">Tanggal follow-up</label><input id="fd" type="date">
+  <label for="fc">Catatan</label><textarea id="fc" rows="2"></textarea>
+  <div class="err" id="err"></div>
+  <div class="aks"><button type="button" id="batal">Batal</button><button type="button" class="ok" id="simpan">Simpan</button></div>
+</dialog>
+<script>
+var ST = ["Prospek", "Janji survei", "Sudah dipasang", "Batal"], K = "salesfwa_v1";
+var D = []; try { D = JSON.parse(localStorage.getItem(K) || "[]"); } catch (e) {}
+var fil = null, fav = false, q = "", eid = null;
+function $(i) { return document.getElementById(i); }
+function simpan() { try { localStorage.setItem(K, JSON.stringify(D)); } catch (e) {} }
+function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+function no62(t) { var d = t.replace(/\D/g, ""); return d.charAt(0) === "0" ? "62" + d.slice(1) : d; }
+function tgl(s) { return s ? s.split("-").reverse().join("/") : ""; }
+function cari(id) { return D.filter(function (x) { return x.id === id; })[0]; }
+
+function render() {
+  var h = "", L = D.filter(function (x) {
+    return (!fav || x.fav) && (fil === null || x.st === fil) && ((x.n + " " + x.a).toLowerCase().indexOf(q) > -1);
+  });
+  L.forEach(function (x) {
+    var info = [x.t, x.p, x.s ? "Sinyal " + x.s : ""].filter(Boolean).map(esc).join("  •  ");
+    var wa = "https://wa.me/" + no62(x.t) + "?text=" + encodeURIComponent("Halo " + x.n + ", saya sales internet rumah FWA. Boleh saya jelaskan paket dan cek sinyal di lokasi Anda?");
+    var peta = x.k ? '<a href="https://www.google.com/maps/search/?api=1&amp;query=' + encodeURIComponent(x.k.replace(/\s/g, "")) + '" target="_blank" rel="noopener">Peta</a>' : "";
+    var opsi = ST.map(function (s, i) { return '<option value="' + i + '"' + (i === x.st ? " selected" : "") + ">" + s + "</option>"; }).join("");
+    h += '<div class="kartu"><div class="r1"><div class="av">' + esc(x.n.charAt(0).toUpperCase()) + '</div>'
+      + '<div class="nm"><b>' + esc(x.n) + (x.fav ? ' <span style="color:#E11D48;font-size:12px">♥</span>' : "") + "</b><small>" + esc(x.a) + "</small></div>"
+      + '<label class="bd" style="background:var(--s' + x.st + "b);color:var(--s" + x.st + 'f)">' + ST[x.st] + ' ▾<select data-s="' + x.id + '">' + opsi + "</select></label>"
+      + '<label class="mn">⋮<select data-m="' + x.id + '"><option value="">Menu</option><option value="fav">' + (x.fav ? "Hapus favorit" : "Jadikan favorit") + '</option><option value="ubah">Ubah</option><option value="hapus">Hapus</option></select></label></div>'
+      + '<div class="if">' + info + "</div>" + (x.f ? '<div class="mu">Follow-up: ' + tgl(x.f) + "</div>" : "") + (x.c ? '<div class="mu">' + esc(x.c) + "</div>" : "")
+      + '<div class="bt"><a href="tel:' + esc(x.t) + '">Telepon</a><a href="' + wa + '" target="_blank" rel="noopener">WhatsApp</a>' + peta + "</div></div>";
+  });
+  $("list").innerHTML = h || '<div class="kosong">' + (D.length ? "Tidak ada yang cocok." : "Belum ada data. Tekan Tambah untuk memulai.") + "</div>";
+  $("sub").textContent = D.length + " pelanggan dan prospek";
+  var c = '<button class="chip' + (fav ? " on" : "") + '" data-f="fav">Favorit</button>';
+  ST.forEach(function (s, i) {
+    var n = D.filter(function (x) { return x.st === i; }).length;
+    c += '<button class="chip' + (fil === i ? " on" : "") + '" data-f="' + i + '">' + s + " (" + n + ")</button>";
+  });
+  $("chips").innerHTML = c;
+}
+
+function bukaForm(x) {
+  eid = x ? x.id : null;
+  $("jdl").textContent = x ? "Ubah pelanggan" : "Tambah pelanggan";
+  $("fn").value = x ? x.n : ""; $("ft").value = x ? x.t : ""; $("fa").value = x ? x.a : "";
+  $("fp").value = x ? x.p : ""; $("fk").value = x ? x.k : ""; $("fs").value = x ? x.st : 0;
+  $("fg").value = x ? x.s : ""; $("fd").value = x ? x.f : ""; $("fc").value = x ? x.c : "";
+  $("err").textContent = ""; $("dlg").showModal();
+}
+
+document.addEventListener("click", function (e) {
+  var b = e.target.closest("[data-f]"); if (!b) return;
+  if (b.dataset.f === "fav") fav = !fav; else { var v = +b.dataset.f; fil = fil === v ? null : v; }
+  render();
+});
+document.addEventListener("change", function (e) {
+  var t = e.target, x;
+  if (t.dataset.s) { x = cari(+t.dataset.s); x.st = +t.value; simpan(); render(); }
+  else if (t.dataset.m) {
+    x = cari(+t.dataset.m); var v = t.value; t.value = "";
+    if (v === "fav") { x.fav = !x.fav; simpan(); render(); }
+    else if (v === "ubah") bukaForm(x);
+    else if (v === "hapus" && confirm("Hapus " + x.n + "?")) { D = D.filter(function (y) { return y !== x; }); simpan(); render(); }
+  }
+});
+$("cari").addEventListener("input", function (e) { q = e.target.value.toLowerCase(); render(); });
+$("tambah").addEventListener("click", function () { bukaForm(null); });
+$("batal").addEventListener("click", function () { $("dlg").close(); });
+$("simpan").addEventListener("click", function () {
+  var n = $("fn").value.trim(), t = $("ft").value.trim(), k = $("fk").value.trim();
+  if (!n || !t) { $("err").textContent = "Nama dan No. HP wajib diisi."; return; }
+  if (k && !/^-?\d{1,3}(\.\d+)?\s*,\s*-?\d{1,3}(\.\d+)?$/.test(k)) { $("err").textContent = "Format koordinat: -6.914744, 107.609810"; return; }
+  var o = { id: eid || Date.now(), n: n, t: t, a: $("fa").value.trim(), p: $("fp").value.trim(), k: k, st: +$("fs").value,
+    s: $("fg").value, f: $("fd").value, c: $("fc").value.trim(), fav: false };
+  if (eid) { var lama = cari(eid); o.fav = lama.fav; D[D.indexOf(lama)] = o; } else D.push(o);
+  D.sort(function (a, b) { return (b.fav - a.fav) || a.n.localeCompare(b.n); });
+  simpan(); render(); $("dlg").close();
+});
+$("fs").innerHTML = ST.map(function (s, i) { return '<option value="' + i + '">' + s + "</option>"; }).join("");
+render();
+if ("serviceWorker" in navigator) { try { navigator.serviceWorker.register("sw.js"); } catch (e) {} }
+</script>
+</body>
+</html>
